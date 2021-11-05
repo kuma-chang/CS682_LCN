@@ -18,7 +18,7 @@ class ThreeLayerLCNNet(object):
     channels.
     """
 
-    def __init__(self, input_dim=(3, 32, 32), num_filters=3, weight_size=28,
+    def __init__(self, input_dim=(3, 32, 32), num_filters=2, weight_size=20,
                  hidden_dim=100, num_classes=10, weight_scale=1e-3, reg=0.0,
                  dtype=np.float32):
         """
