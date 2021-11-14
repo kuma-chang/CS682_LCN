@@ -9,7 +9,7 @@ def lcn_forward(x, w, b, lcn_param):
 
     Inputs:
     - x: Input data of shape (N, C, H, W)
-    - w: Weights of shape (F, C, HH, WW)
+    - w: Weights of shape (F, C*H*W, HH, WW)
     - b: Biases, of shape (F,)
     - lcn_param: A dictionary with the following keys:
       - 'center_dist': The distance between input center and weight center.
@@ -50,7 +50,7 @@ def lcn_forward(x, w, b, lcn_param):
                     input_dist_mask = np.sum(np.square(input_dist_mask), axis=2) + center_dist**2
 
                     #Calculate the score with out the distance penalty
-                    out_temp = (x[n].reshape(C,H*W).T*w[f,:,i,j]).T
+                    out_temp = x[n].reshape(C*H*W)*w[f,:,i,j]
                     out_temp = out_temp.reshape(C,H,W)
                     out_temp = np.sum(out_temp, axis=0)
 
@@ -72,7 +72,7 @@ def lcn_backward(dout, cache):
     - dout: Upstream derivatives.
     - cache: A tuple of (x, w, b, input_index, weight_index, lcn_param)
         - x: Input data of shape (N, C, H, W)
-        - w: Weights of shape (F, C, HH, WW)
+        - w: Weights of shape (F, C*H*W, HH, WW)
         - b: Biases, of shape (F,)
         - lcn_param: A dictionary with the following keys:
           - 'center_dist': The distance between input center and weight center.
@@ -108,14 +108,13 @@ def lcn_backward(dout, cache):
 
                     dx_temp = np.zeros(dx[n].shape)
                     dx_temp += dout[n, f, i, j]/input_dist_mask
-                    dx_temp = ((dx_temp).reshape(C,H*W).T * w[f,:,i,j]).T.reshape(C,H,W)
+                    dx_temp = (dx_temp.reshape(C*H*W) * w[f,:,i,j]).reshape(C,H,W)
                     dx[n] += dx_temp
 
                     dw_temp = np.zeros(dx[n].shape)
                     dw_temp += dout[n, f, i, j]/input_dist_mask
                     dw_temp = dw_temp * x[n]
-                    dw_temp = dw_temp.reshape(C,H*W)
-                    dw_temp = np.sum(dw_temp, axis=1)
+                    dw_temp = dw_temp.reshape(C*H*W)
                     dw[f,:,i,j] += dw_temp
 
                     db[f] += dout[n, f, i, j]

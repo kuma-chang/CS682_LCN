@@ -18,7 +18,7 @@ class ThreeLayerLCNNet(object):
     channels.
     """
 
-    def __init__(self, input_dim=(3, 32, 32), num_filters=2, weight_size=20,
+    def __init__(self, input_dim=(3, 32, 32), num_filters=2, weight_size=5,
                  hidden_dim=100, num_classes=10, weight_scale=1e-3, reg=0.0,
                  dtype=np.float32):
         """
@@ -54,7 +54,7 @@ class ThreeLayerLCNNet(object):
         # **the width and height of the input are preserved**. Take a look at      #
         # the start of the loss() function to see how that happens.                #
         ############################################################################
-        self.params['W1'] = weight_scale * np.random.randn(num_filters, input_dim[0], weight_size, weight_size)
+        self.params['W1'] = weight_scale * np.random.randn(num_filters, input_dim[0]*input_dim[1]*input_dim[2], weight_size, weight_size)
         self.params['b1'] = np.zeros(num_filters)
         self.params['W2'] = weight_scale * np.random.randn(num_filters*weight_size*weight_size, hidden_dim)
         self.params['b2'] = np.zeros(hidden_dim)
