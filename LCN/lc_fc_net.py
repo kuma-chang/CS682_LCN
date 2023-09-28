@@ -11,7 +11,7 @@ class ThreeLayerLCNNet(object):
     """
     A three-layer convolutional network with the following architecture:
 
-    conv - relu - 2x2 max pool - affine - relu - affine - softmax
+    lcn - relu - affine - relu - affine - softmax
 
     The network operates on minibatches of data that have shape (N, C, H, W)
     consisting of N images, each with height H and width W and with C input
@@ -19,7 +19,7 @@ class ThreeLayerLCNNet(object):
     """
 
     def __init__(self, input_dim=(3, 32, 32), num_filters=2, weight_size=5,
-                 hidden_dim=100, num_classes=10, weight_scale=1e-3, reg=0.0,
+                 hidden_dim=100, num_classes=10, weight_scale=1e-3, reg=0.0, center_dist = 1,
                  dtype=np.float32):
         """
         Initialize a new network.
@@ -39,6 +39,8 @@ class ThreeLayerLCNNet(object):
         self.reg = reg
         self.dtype = dtype
 
+        self.center_dist = center_dist
+
         ############################################################################
         # TODO: Initialize weights and biases for the three-layer convolutional    #
         # network. Weights should be initialized from a Gaussian centered at 0.0   #
@@ -54,7 +56,7 @@ class ThreeLayerLCNNet(object):
         # **the width and height of the input are preserved**. Take a look at      #
         # the start of the loss() function to see how that happens.                #
         ############################################################################
-        self.params['W1'] = weight_scale * np.random.randn(num_filters, input_dim[0]*input_dim[1]*input_dim[2], weight_size, weight_size)
+        self.params['W1'] = weight_scale * np.random.randn(num_filters, weight_size, weight_size, input_dim[0]*input_dim[1]*input_dim[2])
         self.params['b1'] = np.zeros(num_filters)
         self.params['W2'] = weight_scale * np.random.randn(num_filters*weight_size*weight_size, hidden_dim)
         self.params['b2'] = np.zeros(hidden_dim)
@@ -81,7 +83,7 @@ class ThreeLayerLCNNet(object):
         # pass conv_param to the forward pass for the convolutional layer
         # Padding and stride chosen to preserve the input spatial size
         filter_size = W1.shape[2]
-        lcn_param = {'center_dist': 1}
+        lcn_param = {'center_dist': self.center_dist}
 
         # pass pool_param to the forward pass for the max-pooling layer
         pool_param = {'pool_height': 2, 'pool_width': 2, 'stride': 2}
